@@ -1,49 +1,119 @@
-function longestSlideDown(pyramid) {
-    function addItem(arr, e) {
-        return (arr.join(',') + ',' + e).split(',').map(e => ~~e);
+var Sudoku = function (data) {
+    //   Private methods
+    // -------------------------
+    var hasDuplicate = function (arr) {
+        return Array.from(new Set(arr)).length !== arr.length;
     }
-    function path() {
-        let result = [[0]];
-        while (result[0].length < pyramid.length) {
-            const temp = [];
-            result.forEach(e => {
-                const item = e[e.length - 1];
-                temp.push(addItem(e, item));
-                temp.push(addItem(e, item + 1));
+    var rotate = function (arr) {
+        return arr.reduce((r, e) => {
+            e.forEach((e1, i1) => {
+                r[i1] = r[i1] || [];
+                r[i1].push(e1);
             });
-            result = temp;
-        }
-        return result;
-    };
-    const foundPath = path([[0]], 1, pyramid.length);
-    let max = 0;
-    let maxPath = null;
-    for (let i = 0; i < foundPath.length; i++) {
-        const temp = foundPath[i].reduce((s, v, i) => s + pyramid[i][v], 0);
-        if (temp > max) {
-            max = temp;
-            maxPath = foundPath[i];
-        }
+            return r;
+        }, []);
     }
-    console.log(max);
-    maxPath.forEach((e, i) => {
-        console.log(pyramid[i].map((e1, i) => e === i ? '|' + e1 + '|' : e1).join('\t'));
-    })
-    return max;
-}
-console.log(longestSlideDown(
-    [[75],
-    [95, 64],
-    [17, 47, 82],
-    [18, 35, 87, 10],
-    [20, 4, 82, 47, 65],
-    [19, 1, 23, 75, 3, 34],
-    [88, 2, 77, 73, 7, 63, 67],
-    [99, 65, 4, 28, 6, 16, 70, 92],
-    [41, 41, 26, 56, 83, 40, 80, 70, 33],
-    [41, 48, 72, 33, 47, 32, 37, 16, 94, 29],
-    [53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14],
-    [70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57],
-    [91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48],
-    [63, 66, 4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
-    [40000, 62, 98, 27, 23, 9, 70, 98, 73, 93, 38, 53, 60, 4, 23]]) === 1074);
+    var childBlock = function (arr) {
+        const N = arr.length;
+        const n = ~~Math.sqrt(N);
+        const r = [];
+        for (let i = 0; i < N; i++) {
+            r[i] = r[i] || [];
+            for (let j = 0; j < N; j++) {
+                const x = j % n;
+                const y = ~~(j / n);
+                const v = arr[y][x];
+                r[i].push(v);
+            }
+        }
+        return r;
+    }
+    var elementCount = function (arr) {
+        return arr.reduce((r, e) => {
+            e.forEach(e1 => {
+                r[e1] = r[e1] || 0;
+                r[e1]++;
+            });
+            return r;
+        }, {});
+    }
+
+    //   Public methods
+    // -------------------------
+    this.isValid = function () {
+        // YOUR SOLUTION
+        const N = data.length;
+        const n = ~~Math.sqrt(N);
+        if (!N || N !== data[0].length || n * n !== N) {
+            return false;
+        }
+        if (N == 1) {
+            return data[0][0] === 1;
+        }
+        if (data.some(e => hasDuplicate(e))) {
+            return false;
+        }
+        if (rotate(data).some(e => hasDuplicate(e))) {
+            return false;
+        }
+        if (childBlock(data).some(e => hasDuplicate(e))) {
+            return false;
+        }
+        const elements = elementCount(data);
+        if (Object.keys(elements).some(e => ~~e < 1 || ~~e > N)) {
+            return false;
+        }
+        if (Object.values(elements).some(e => e !== N)) {
+            return false;
+        }
+        return true;
+    }
+};
+
+var goodSudoku1 = new Sudoku([
+    [7, 8, 4, 1, 5, 9, 3, 2, 6],
+    [5, 3, 9, 6, 7, 2, 8, 4, 1],
+    [6, 1, 2, 4, 3, 8, 7, 5, 9],
+
+    [9, 2, 8, 7, 1, 5, 4, 6, 3],
+    [3, 5, 7, 8, 4, 6, 1, 9, 2],
+    [4, 6, 1, 9, 2, 3, 5, 8, 7],
+
+    [8, 7, 6, 3, 9, 4, 2, 1, 5],
+    [2, 4, 3, 5, 6, 1, 9, 7, 8],
+    [1, 9, 5, 2, 8, 7, 6, 3, 4]
+]);
+
+var goodSudoku2 = new Sudoku([
+    [1, 4, 2, 3],
+    [3, 2, 4, 1],
+
+    [4, 1, 3, 2],
+    [2, 3, 1, 4]
+]);
+
+var badSudoku1 = new Sudoku([
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+]);
+
+var badSudoku2 = new Sudoku([
+    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+    [1]
+]);
+
+console.log(goodSudoku1.isValid() === true);
+console.log(goodSudoku2.isValid() === true);
+console.log(badSudoku1.isValid() === false);
+console.log(badSudoku2.isValid() === false);
