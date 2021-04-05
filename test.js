@@ -1,45 +1,49 @@
-function search(ints, m) {
-    for (let i = 0; i < ints.length; i++) {
-        if (ints[i] < m) {
-            return i;
+function longestSlideDown(pyramid) {
+    function addItem(arr, e) {
+        return (arr.join(',') + ',' + e).split(',').map(e => ~~e);
+    }
+    function path() {
+        let result = [[0]];
+        while (result[0].length < pyramid.length) {
+            const temp = [];
+            result.forEach(e => {
+                const item = e[e.length - 1];
+                temp.push(addItem(e, item));
+                temp.push(addItem(e, item + 1));
+            });
+            result = temp;
+        }
+        return result;
+    };
+    const foundPath = path([[0]], 1, pyramid.length);
+    let max = 0;
+    let maxPath = null;
+    for (let i = 0; i < foundPath.length; i++) {
+        const temp = foundPath[i].reduce((s, v, i) => s + pyramid[i][v], 0);
+        if (temp > max) {
+            max = temp;
+            maxPath = foundPath[i];
         }
     }
-    return 0;
+    console.log(max);
+    maxPath.forEach((e, i) => {
+        console.log(pyramid[i].map((e1, i) => e === i ? '|' + e1 + '|' : e1).join('\t'));
+    })
+    return max;
 }
-function sumPairs(ints, s) {
-    const m = ~~(s / 2);
-    const found = [];
-    while (ints.length) {
-        const i1 = search(ints, m);
-        const item = ints[i1];
-        const target = s - item;
-        for (let i2 = 0; i2 < ints.length; i2++) {
-            if (i1 === i2) continue;
-            if (target === ints[i2]) {
-                if (i1 < i2) {
-                    const temp = ints.splice(i2, 1)[0];
-                    return [ints.splice(i1, 1)[0], temp];
-                } else {
-                    const temp = ints.splice(i1, 1)[0];
-                    return [ints.splice(i2, 1)[0], temp];
-                }
-            }
-        }
-        ints.splice(i1, 1);
-    }
-}
-// let a = sumPairs([1, 4, 8, 7, 3, 15], 8);
-// console.log(a, a.join() == [1, 7].join());
-a = sumPairs([10, 5, 2, 3, 7, 5], 10);
-console.log(a, [3,7]);
-// a = sumPairs([10, 5, 2, 3, 7, 5], 10);
-// console.log(a, [3, 7]);
-// sumPairs([1, 2, 3, 4, 1, 0], 2), [1, 1], "First Match From Left: [1, 2, 3, 4, 1, 0] should return [1, 1] for sum = 2"
-// sumPairs([10, 5, 2, 3, 7, 5], 10), [3, 7], "First Match From Left REDUX!: [10, 5, 2, 3, 7, 5] should return [3, 7] for sum = 10"
-
-// sumPairs([1, 4, 8, 7, 3, 15], 8), [1, 7], "Basic: [1, 4, 8, 7, 3, 15] should return [1, 7] for sum = 8"
-// sumPairs([1, -2, 3, 0, -6, 1], -6), [0, -6], "Negatives: [1, -2, 3, 0, -6, 1] should return [0, -6] for sum = -6"
-// sumPairs([20, -13, 40], -7), undefined, "No Match: [20, -13, 40] should return undefined for sum = -7"
-// sumPairs([4, -2, 3, 3, 4], 8), [4, 4], "Duplicates: [4, -2, 3, 3, 4] should return [4, 4] for sum = 8"
-// sumPairs([0, 2, 0], 0), [0, 0], "Zeroes: [0, 2, 0] should return [0, 0] for sum = 0"
-// sumPairs([5, 9, 13, -3], 10), [13, -3], "Subtraction: [5, 9, 13, -3] should return [13, -3] for sum = 10"
+console.log(longestSlideDown(
+    [[75],
+    [95, 64],
+    [17, 47, 82],
+    [18, 35, 87, 10],
+    [20, 4, 82, 47, 65],
+    [19, 1, 23, 75, 3, 34],
+    [88, 2, 77, 73, 7, 63, 67],
+    [99, 65, 4, 28, 6, 16, 70, 92],
+    [41, 41, 26, 56, 83, 40, 80, 70, 33],
+    [41, 48, 72, 33, 47, 32, 37, 16, 94, 29],
+    [53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14],
+    [70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57],
+    [91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48],
+    [63, 66, 4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
+    [40000, 62, 98, 27, 23, 9, 70, 98, 73, 93, 38, 53, 60, 4, 23]]) === 1074);
