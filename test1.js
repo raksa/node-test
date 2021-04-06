@@ -1,12 +1,23 @@
-function multi(nStr, m) {
-    nStr = nStr.split('').map(e => ~~e).reverse();
-    let r = 0;
-    for (let i = 0; i < nStr.length; i++) {
-        r = nStr[i] * m;
-        nStr[i] = r % 10;
-        r = ~~(r / 10);
+class A {
+    static name() {
+        throw new Error('name must be implemented');
     }
-    r && nStr.push(r);
-    return nStr.reverse().join('');
+    static toString() {
+        return this.name();
+    }
+    static fromThis(){
+        return new this;
+    }
 }
-console.log(multi('94000000045677', 2));
+class B extends A {
+    static name() {
+        return 'B';
+    }
+}
+class C extends A {
+    static name() {
+        return 'C';
+    }
+}
+console.log(B.fromThis());
+console.log(C.fromThis());
